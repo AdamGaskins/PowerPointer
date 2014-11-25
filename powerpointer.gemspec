@@ -15,4 +15,5 @@ Gem::Specification.new do |s|
   # If you need to check in files that aren't .rb files, add them here
   s.files        = Dir["{lib}/**/*.rb", "bin/*", "LICENSE", "*.md"]
   s.require_path = 'lib'
+  s.add_dependency 'rubyzip', '~> 1.0.0'  
 end
