@@ -22,8 +22,12 @@ module PowerPointer
             @filename
         end
         
-        def get_full_path
-            (@path + @filename)
+        def get_full_path (leading_slash = false)
+            if leading_slash
+                return "/" + @path + @filename
+            else
+                return @path + @filename
+            end
         end
     end
 end

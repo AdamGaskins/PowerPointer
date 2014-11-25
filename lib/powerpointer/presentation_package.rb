@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'tmpdir'
 
 module PowerPointer
     class PresentationPackage
@@ -11,6 +12,65 @@ module PowerPointer
             
             @verbose = false
         end
+
+        def export_xml output
+            rootFolder = ""
+
+            vputs ""
+            vputs "Preparing..."
+            vputs ""
+            
+            # 1. Prepare presentation (Adds relationships and content types)
+            @presentation.export_xml(rootFolder, self)
+            
+            # 2. Prepare relationships (Adds content types)
+            @relationships.export_xml(rootFolder, self)           
+            
+            # 3. Prepare content types
+            @contentTypes.export_xml(rootFolder, self)
+                                  
+            # Create tmp directory
+            Dir.mktmpdir do |tmp_folder|
+                vputs "Created temporary directory: #{tmp_folder}"
+                          
+                # Do the export
+                @exportFiles.each do |file|
+                    vputs "Exporting #{file.get_full_path}"
+                    
+                    # Create the path if it doesn't exist
+                    path = "#{tmp_folder}/#{file.get_path}"
+                    FileUtils::mkdir_p path
+                    
+                    # Write the file
+                    File.open("#{path}/#{file.get_filename}", "w") do |f|
+                        f << file.get_content
+                    end
+                end
+                
+                vputs ""
+                vputs "Export complete."
+                vputs ""
+                vputs "Zipping..."
+                vputs ""
+                
+                # Init zip file
+                Zip::File.open(output, Zip::File::CREATE) do |zip|
+                    # Add each file to zip
+                    @exportFiles.each do |file|
+                        zip.add(file.get_full_path, File.join(tmp_folder, file.get_full_path))
+                    end
+                end
+                
+                vputs "Zipping complete."
+                vputs ""
+                
+                # tmp directory is erased
+            end
+        end
+        
+        def add_content_type(ct)
+            @contentTypes.add_content_type ct
+        end                
         
         def verbose=(verbose)
             @verbose = verbose
@@ -31,55 +91,13 @@ module PowerPointer
         def add file
             @exportFiles << file
         end
-               
-        def export_xml(tmp_folder = "tmpppt_root")
-            rootFolder = ""
-
-            vputs ""
-            vputs "Preparing..."
-            vputs ""
-            
-            # Prepare presentation
-            @presentation.export_xml(rootFolder, self)
-            
-            # Prepare content types
-            @contentTypes.export_xml(rootFolder, self)
-            
-            # Prepare relationships            
-            @relationships.export_xml(rootFolder, self)
-                      
-            # Remove directory if it exists
-            FileUtils::remove_dir(tmp_folder, true)
-                      
-            # Do the export
-            @exportFiles.each do |file|
-                # Debug
-                vputs "Exporting #{file.get_full_path}"
-                
-                # Create the path if it doesn't exist
-                path = "#{tmp_folder}/#{file.get_path}"
-                FileUtils::mkdir_p path
-                
-                # Write the file
-                File.open("#{path}/#{file.get_filename}", "w") do |f|
-                    f << file.get_content
-                end
-            end
-            vputs ""
-            vputs "Completed!"
-            vputs ""
-        end
-        
-        def add_content_type(ct)
-            @contentTypes.add_content_type ct
-        end        
-        
+                       
         private
         
         def vputs s
             if verbose
                 puts s
             end
-        end
+        end       
     end
 end

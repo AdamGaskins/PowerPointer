@@ -1,8 +1,11 @@
 module PowerPointer
     class ContentTypes
         class Override
-            def initialize(partName, contentType)
+            def initialize(partName, contentType)                
                 @partName = partName
+                if @partName[0] != "/"
+                    @partName = "/" + @partName
+                end
                 @contentType = contentType
             end
             

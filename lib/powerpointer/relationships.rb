@@ -30,7 +30,7 @@ module PowerPointer
             package.add export
             
             # Add references to me
-            package.add_content_type ContentTypes::Override.new(export.get_full_path, "application/vnd.openxmlformatspackage.relationships+xml")
+            package.add_content_type ContentTypes::Override.new(export.get_full_path, "application/vnd.openxmlformats-package.relationships+xml")
         end
     end
 end

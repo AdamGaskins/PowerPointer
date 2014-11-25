@@ -13,7 +13,6 @@ module PowerPointer
         def export_xml(folder, package)
             # Export me
             export = ExportFile.new(folder, "[Content_Types].xml")
-            export << XML_HEADER.dup
             export << "<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\">"
             @contentTypes.each do |contentType|
                 export << contentType.to_xml
