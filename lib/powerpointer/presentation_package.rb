@@ -53,6 +53,11 @@ module PowerPointer
                 vputs "Zipping..."
                 vputs ""
                 
+                # Delete zip file if it exists
+                if File::exists? output
+                    File::delete output
+                end
+                
                 # Init zip file
                 Zip::File.open(output, Zip::File::CREATE) do |zip|
                     # Add each file to zip
