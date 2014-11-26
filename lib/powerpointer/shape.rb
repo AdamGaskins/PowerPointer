@@ -1,7 +1,10 @@
 module PowerPointer
     class Shape
-        def initialize (id, name)
-            @id = id
+        @@shape_count = 0
+        def initialize name
+            @@shape_count++
+
+            @id = @@shape_count
             @name = name
             @x = 0
             @y = 0
@@ -36,7 +39,7 @@ module PowerPointer
                     s << "<a:p>"
                         s << "<a:r>"
                             s << "<a:t>#{PowerPointer::escape_tag @text}</a:t>"
-                        s << "<a:r>"                        
+                        s << "<a:r>"
                     s << "</a:p>"
                 s << "</p:txBody>"
             end

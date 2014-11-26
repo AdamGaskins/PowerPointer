@@ -18,7 +18,7 @@ module PowerPointer
         attr_accessor :notesSize, :slideSize
 
         def add_slide name
-            s = Slide.new(@slides.count + 1, name)
+            s = Slide.new name
             @slides << s
             return s
         end
@@ -33,7 +33,7 @@ module PowerPointer
             # Export me
             export = ExportFile.new(me_folder, @filename)
             export << XML_HEADER
-            export << "<p:presentation xmlns:p=\"http://schemas.openxmlformats.org/presentationml/2006/main\"  xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
+            export << "<p:presentation xmlns:p=\"#{SCHEMAS[:presentation][:root]}\" xmlns:a=\"#{SCHEMAS[:drawingML]}\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
 
                 # Export slide masters
                 export << "<p:sldMasterIdLst>"
@@ -54,8 +54,8 @@ module PowerPointer
             package.add export
 
             # Add references to me
-            package.get_relationships.add(@relationshipId, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument", export.get_full_path)
-            c = ContentTypes::Override.new(export.get_full_path, "application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml")
+            package.get_relationships.add(@relationshipId, SCHEMAS[:presentation][:relationship], export.get_full_path)
+            c = ContentTypes::Override.new(export.get_full_path, SCHEMAS[:presentation][:content_type])
             package.add_content_type(c)
 
             # Export relationships

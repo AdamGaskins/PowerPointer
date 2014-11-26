@@ -4,7 +4,7 @@ module PowerPointer
             @filename = filename
             @relationships = []
         end
-        
+
         def add(id, type, target)
             relationship = {
                 :id => id,
@@ -13,24 +13,24 @@ module PowerPointer
             }
             @relationships << relationship
         end
-        
+
         def get_filename
             @filename
         end
-        
+
         def export_xml(folder, package)
             # Export me
             export = ExportFile.new(folder + "_rels/", @filename + ".rels")
             export << XML_HEADER.dup
-            export << "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">"
+            export << "<Relationships xmlns=\"#{SCHEMAS[:relationship][:root]}\">"
             @relationships.each do |relationship|
                 export << "<Relationship Id=\"#{relationship[:id]}\" Type=\"#{relationship[:type]}\" Target=\"#{relationship[:target]}\" />"
             end
             export << "</Relationships>"
             package.add export
-            
+
             # Add references to me
-            package.add_content_type ContentTypes::Override.new(export.get_full_path, "application/vnd.openxmlformats-package.relationships+xml")
+            package.add_content_type ContentTypes::Override.new(export.get_full_path, SCHEMAS[:relationship][:content_type])
         end
     end
 end
