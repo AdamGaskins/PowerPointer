@@ -6,6 +6,7 @@ module PowerPointer
 
             @id = @@shape_count
             @name = name
+            @placeholder = name
             @x = 0
             @y = 0
             @width = 0
@@ -54,6 +55,6 @@ module PowerPointer
             @text = text
         end
 
-        attr_accessor :x, :y, :width, :height, :is_text_box
+        attr_accessor :x, :y, :width, :height, :is_text_box, :placeholder
     end
 end

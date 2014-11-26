@@ -43,7 +43,7 @@ module PowerPointer
                 export << "<p:sldIdLst>"
                 @slides.each do |slide|
                     slide.export_xml(export.get_path, self, package)
-                    export << "<p:sldId id=\"#{slide.get_id}\" r:id=\"#{slide.get_relationship_id}\" />"
+                    export << "<p:sldId id=\"#{slide.id}\" r:id=\"#{slide.relationship_id}\" />"
                 end
                 export << "</p:sldIdLst>"
 
