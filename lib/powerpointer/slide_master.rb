@@ -1,9 +1,13 @@
 module PowerPointer
 	class SlideMaster < SlideKind
 		@@slide_layout_count = 0
-		def initialize(name)
+		@@next_unique_id = 2147483648
+		def initialize(name, presentation)
 			@@slide_layout_count += 1
-			_initialize @@slide_layout_count, "slideMaster", name
+			@@next_unique_id += 1
+			_initialize @@slide_layout_count, @@next_unique_id, "slideMaster", "sldMaster", name, :slide_master
+
+			@presentation = presentation
 
 			@clr_map = {
 				bg1:"lt1",
@@ -23,31 +27,34 @@ module PowerPointer
 			@slide_layouts = []
 		end
 
-		def add_slide_layout layout
-			if layout.respond_to? :set_master
-				layout.set_master self
-				@slide_layouts << layout
-				@relationships.add @layout.get_relationship_id, SCHEMAS[:slideLayout][:relationship], "../slideLayouts/#{layout.file_name}"
-			end
+		attr_accessor :presentation, :slide_layouts
+
+		def _add_slide_layout layout
+			@slide_layouts << layout
+			@relationships.add layout.relationship_id, PowerPointer::SCHEMAS[:slide_layout][:relationship], "../slideLayouts/#{layout.file_name}"
 		end
 
-		def custom_xml buffer
-			# Export color map
-			buffer << "<p:clrMap "
-			@clr_map.each do |key, value|
-				buffer << key
-				buffer << "=\""
-				buffer << PowerPointer::escape_string(value)
-				buffer << "\" "
-			end
-			buffer << "/>"
+		def custom_xml tag, buffer, folder, presentation, package
+			if tag == "spTree"
+			elsif tag == "sldMaster"
+				# Export color map
+				buffer << "<p:clrMap "
+				@clr_map.each do |key, value|
+					buffer << key.to_s
+					buffer << "=\""
+					buffer << PowerPointer::escape_string(value)
+					buffer << "\" "
+				end
+				buffer << "/>"
 
-			# Export slide layout list
-			buffer << "<p:sldLayoutIdLst>"
-			@slide_layouts.each do |slide_layout|
-				buffer << "<p:sldLayoutId id=\"#{slide_layout.id}\" r:id=\"#{slide_layout.relationship_id}\" />"
+				# Export slide layout list
+				buffer << "<p:sldLayoutIdLst>"
+				@slide_layouts.each do |slide_layout|
+					buffer << "<p:sldLayoutId id=\"#{slide_layout.unique_id}\" r:id=\"#{slide_layout.relationship_id}\" />"
+					slide_layout.export_xml folder, presentation, package
+				end
+				buffer << "</p:sldLayoutIdLst>"
 			end
-			buffer << "</p:sldLayoutIdLst>"
 		end
 	end
 end

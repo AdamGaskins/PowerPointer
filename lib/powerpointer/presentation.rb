@@ -1,25 +1,39 @@
 module PowerPointer
     class Presentation
-        def initialize
+        def initialize package
             @slides = []
-            @slideMasters = []
-            @noteMasters = []
-            @handoutMasters = []
-            @relationshipId = "rId_presentation"
+            @slide_masters = []
+            @note_masters = []
+            @handout_masters = []
+            @relationship_id = "rId_presentation"
+
+            @package = package
 
             @filename = "presentation.xml"
 
             @relationships = Relationships.new @filename
 
-            @notesSize = [913607, 913607]
-            @slideSize = [10080625, 7559675]
+            @notes_size = [913607, 913607]
+            @slide_size = [10080625, 7559675]
         end
 
-        attr_accessor :notesSize, :slideSize
+        attr_accessor :notes_size, :slide_size, :package
 
-        def add_slide name
-            s = Slide.new name
+        def add_slide name, layout
+            s = Slide.new name, layout
             @slides << s
+            return s
+        end
+
+        def add_slide_layout name, master
+            s = SlideLayout.new name, master
+            return s
+        end
+
+        def add_slide_master name
+            s = SlideMaster.new name, self
+
+            @slide_masters << s
             return s
         end
 
@@ -27,7 +41,7 @@ module PowerPointer
             @relationships
         end
 
-        def export_xml(folder, package)
+        def export_xml(folder)
             me_folder = folder + "ppt/"
 
             # Export me
@@ -37,26 +51,31 @@ module PowerPointer
 
                 # Export slide masters
                 export << "<p:sldMasterIdLst>"
+                @slide_masters.each do |slide_master|
+                    slide_master.export_xml(export.get_path, self, @package)
+
+                    export << "<p:sldMasterId id=\"#{slide_master.unique_id}\" r:id=\"#{slide_master.relationship_id}\" />"
+                end
                 export << "</p:sldMasterIdLst>"
 
                 # Export slide list
                 export << "<p:sldIdLst>"
                 @slides.each do |slide|
-                    slide.export_xml(export.get_path, self, package)
-                    export << "<p:sldId id=\"#{slide.id}\" r:id=\"#{slide.relationship_id}\" />"
+                    slide.export_xml(export.get_path, self, @package)
+                    export << "<p:sldId id=\"#{slide.unique_id}\" r:id=\"#{slide.relationship_id}\" />"
                 end
                 export << "</p:sldIdLst>"
 
                 # Export sizes
-                export << "<p:sldSz cx=\"#{@slideSize[0]}\" cy=\"#{@slideSize[1]}\" />"
-                export << "<p:notesSz cx=\"#{@notesSize[0]}\" cy=\"#{@notesSize[1]}\" />"
+                export << "<p:sldSz cx=\"#{@slide_size[0]}\" cy=\"#{@slide_size[1]}\" />"
+                export << "<p:notesSz cx=\"#{@notes_size[0]}\" cy=\"#{@notes_size[1]}\" />"
             export << "</p:presentation>"
-            package.add export
+            @package.add export
 
             # Add references to me
-            package.get_relationships.add(@relationshipId, SCHEMAS[:presentation][:relationship], export.get_full_path)
+            @package.get_relationships.add(@relationship_id, SCHEMAS[:presentation][:relationship], export.get_full_path)
             c = ContentTypes::Override.new(export.get_full_path, SCHEMAS[:presentation][:content_type])
-            package.add_content_type(c)
+            @package.add_content_type(c)
 
             # Export relationships
             @relationships.export_xml(export.get_path, package)
