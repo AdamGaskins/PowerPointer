@@ -30,8 +30,8 @@ module PowerPointer
             return ""
         end
 
-        def add_shape name
-            s = Shape.new name
+        def add_shape name, placeholder=nil
+            s = Shape.new name, (placeholder or name)
             @shapes << s
             return s
         end

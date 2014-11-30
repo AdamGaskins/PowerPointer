@@ -1,22 +1,43 @@
 module PowerPointer
     class Shape
         @@shape_count = 0
+        @@next_placeholder_id = 1
+        @@placeholders = {}
         def initialize name
+            initialize name, name   
+        end
+
+        def initialize name, friendly_idx
             @@shape_count++
 
             @id = @@shape_count
             @name = name
-            @placeholder = name
             @type = "body"
             @x = -1
             @y = -1
             @width = -1
             @height = -1
 
+            set_placeholder (friendly_idx)
+
             @use_size = false
 
             @is_text_box = false
             @text = ""
+        end
+
+        def placeholder
+            @placeholder
+        end
+
+        def set_placeholder pl
+            if !@@placeholders.has_key? pl.to_s
+                @@placeholders[pl] = @@next_placeholder_id
+                @@next_placeholder_id += 1
+            end
+            @placeholder = pl
+            puts @placeholder
+            puts @@placeholders[pl]
         end
 
         def to_xml type
@@ -34,7 +55,7 @@ module PowerPointer
                     s << "<p:cNvPr id=\"#{PowerPointer::escape_string @id}\" name=\"#{PowerPointer::escape_string @name}\" />"
                     s << "<p:cNvSpPr txBox=\"#{@is_text_box ? 1 : 0}\" />"
                     s << "<p:nvPr>"
-                        s << "<p:ph type=\"#{PowerPointer::escape_string @type}\" idx=\"#{PowerPointer::escape_string @placeholder}\" />"
+                        s << "<p:ph type=\"#{PowerPointer::escape_string @type}\" idx=\"#{PowerPointer::escape_string @@placeholders[@placeholder]}\" />"
                     s << "</p:nvPr>"
                 s << "</p:#{nvSpPr}>"
                 s << "<p:spPr>"
@@ -70,6 +91,6 @@ module PowerPointer
             @text = text
         end
 
-        attr_accessor :x, :y, :width, :height, :is_text_box, :placeholder, :type, :use_size
+        attr_accessor :x, :y, :width, :height, :is_text_box, :type, :use_size
     end
 end
