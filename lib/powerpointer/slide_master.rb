@@ -34,7 +34,7 @@ module PowerPointer
 			@relationships.add layout.relationship_id, PowerPointer::SCHEMAS[:slide_layout][:relationship], "../slideLayouts/#{layout.file_name}"
 		end
 
-		def custom_xml tag, buffer, folder, presentation, package
+		def custom_xml tag, buffer, folder, presentation, package, tmpFolder
 			if tag == "spTree"
 			elsif tag == "sldMaster"
 				# Export color map
@@ -51,7 +51,7 @@ module PowerPointer
 				buffer << "<p:sldLayoutIdLst>"
 				@slide_layouts.each do |slide_layout|
 					buffer << "<p:sldLayoutId id=\"#{slide_layout.unique_id}\" r:id=\"#{slide_layout.relationship_id}\" />"
-					slide_layout.export_xml folder, presentation, package
+					slide_layout.export_xml folder, presentation, package, tmpFolder
 				end
 				buffer << "</p:sldLayoutIdLst>"
 			end

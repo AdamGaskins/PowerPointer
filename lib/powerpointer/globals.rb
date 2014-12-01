@@ -26,6 +26,9 @@ module PowerPointer
             relationship: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster",
             content_type: "application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml"
         },
+        pic: {
+            relationship: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
+        },
         drawingML: "http://schemas.openxmlformats.org/drawingml/2006/main",
         content_types: "http://schemas.openxmlformats.org/package/2006/content-types"
     }

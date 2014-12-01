@@ -9,7 +9,7 @@ module PowerPointer
 			@relationships.add slide_layout.relationship_id, SCHEMAS[:slide_layout][:relationship], "../slideLayouts/#{slide_layout.file_name}"
 		end
 
-		def custom_xml tag, buffer, folder, presentation, package
+		def custom_xml tag, buffer, folder, presentation, package, tmpFolder
 			# buffer << ""
 		end
 	end

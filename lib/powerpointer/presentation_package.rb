@@ -8,6 +8,10 @@ module PowerPointer
             @contentTypes = ContentTypes.new
             @relationships = Relationships.new("")
 
+            @contentTypes.add_content_type PowerPointer::ContentTypes::Default.new( "png", "image/png")
+            @contentTypes.add_content_type PowerPointer::ContentTypes::Default.new( "jpeg", "image/jpeg")
+            @contentTypes.add_content_type PowerPointer::ContentTypes::Default.new( "jpg", "image/jpeg")
+
             @exportFiles = []
 
             @verbose = false
@@ -20,17 +24,18 @@ module PowerPointer
             vputs "Preparing..."
             vputs ""
 
-            # 1. Prepare presentation (Adds relationships and content types)
-            @presentation.export_xml(rootFolder)
-
-            # 2. Prepare relationships (Adds content types)
-            @relationships.export_xml(rootFolder, self)
-
-            # 3. Prepare content types
-            @contentTypes.export_xml(rootFolder, self)
-
             # Create tmp directory
             Dir.mktmpdir do |tmp_folder|
+
+                # 1. Prepare presentation (Adds relationships and content types)
+                @presentation.export_xml(rootFolder, tmp_folder)
+
+                # 2. Prepare relationships (Adds content types)
+                @relationships.export_xml(rootFolder, self)
+
+                # 3. Prepare content types
+                @contentTypes.export_xml(rootFolder, self)
+
                 vputs "Created temporary directory: #{tmp_folder}"
 
                 # Do the export
@@ -42,7 +47,7 @@ module PowerPointer
                     FileUtils::mkdir_p path
 
                     # Write the file
-                    File.open("#{path}/#{file.get_filename}", "w") do |f|
+                    File.open("#{path}/#{file.get_filename}", "wb") do |f|
                         f << file.get_content
                     end
                 end

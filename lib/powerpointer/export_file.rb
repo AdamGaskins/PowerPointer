@@ -5,23 +5,25 @@ module PowerPointer
             @filename = filename
             @content = ""
         end
-        
+
+        attr_accessor :content
+
         def <<(content)
             @content << content
-        end    
-        
+        end
+
         def get_content
             @content
         end
-        
+
         def get_path
             @path
         end
-        
+
         def get_filename
             @filename
         end
-        
+
         def get_full_path (leading_slash = false)
             if leading_slash
                 return "/" + @path + @filename

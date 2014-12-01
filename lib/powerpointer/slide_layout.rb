@@ -14,7 +14,7 @@ module PowerPointer
 
 		attr_accessor :master
 
-		def custom_xml tag, buffer, folder, presentation, package
+		def custom_xml tag, buffer, folder, presentation, package, tmpFolder
 			# buffer << ""
 		end
 	end

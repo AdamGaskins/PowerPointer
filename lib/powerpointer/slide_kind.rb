@@ -12,6 +12,7 @@ module PowerPointer
             @relationship_id = "rId_#{item_name}#{@id.to_s}"
 
             @shapes = []
+            @pictures = []
 
             @file_name = "#{item_name}#{@id}.xml"
             @relationships = Relationships.new @file_name
@@ -25,25 +26,26 @@ module PowerPointer
             end
         end
 
-        def custom_xml
-            # This function needs to be overridden in Slide/SlideLayout/SlideMaster
-            return ""
-        end
-
         def add_shape name, placeholder=nil
             s = Shape.new name, (placeholder or name)
             @shapes << s
             return s
         end
 
-        def export_xml(folder, presentation, package)
+        def add_pic url
+            p = Pic.new url
+            @pictures << p
+            return p
+        end
+
+        def export_xml(folder, presentation, package, tmpPath)
             # Export me
             export = ExportFile.new(folder + "#{@folder_name}/", @file_name)
             export << XML_HEADER
             export << "<p:#{@root} xmlns:p=\"#{SCHEMAS[@schema_id][:root]}\" xmlns:a=\"#{SCHEMAS[:drawingML]}\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
                 export << "<p:cSld name=\"#{PowerPointer::escape_string @name}\">"
                     export << "<p:spTree>"
-                        custom_xml("spTree", export, folder, presentation, package)
+                        custom_xml("spTree", export, folder, presentation, package, tmpPath)
                         export << "<p:nvGrpSpPr>"
                             export << "<p:cNvPr id=\"#{PowerPointer::escape_string @id}\" name=\"#{PowerPointer::escape_string @name}\" />"
                             export << "<p:cNvGrpSpPr />"
@@ -57,12 +59,19 @@ module PowerPointer
                                 export << "<a:chExt cx=\"0\" cy=\"0\"/>"
                             export << "</a:xfrm>"
                         export << "</p:grpSpPr>"
+                        @pictures.each do |pic|
+                            export << pic.to_xml
+                            img = ExportFile.new(folder + "media/", pic.filename)
+                            img.content = IO.binread(pic.path)
+                            package.add img
+                            @relationships.add pic.relationship_id, SCHEMAS[:pic][:relationship], "../media/#{pic.filename}"
+                        end
                         @shapes.each do |shape|
                             export << shape.to_xml(@schema_id)
                         end
                     export << "</p:spTree>"
                 export << "</p:cSld>"
-                custom_xml(@root, export, folder, presentation, package)
+                custom_xml(@root, export, folder, presentation, package, tmpPath)
             export << "</p:#{@root}>"
             package.add export
 

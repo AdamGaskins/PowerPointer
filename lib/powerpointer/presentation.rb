@@ -41,7 +41,7 @@ module PowerPointer
             @relationships
         end
 
-        def export_xml(folder)
+        def export_xml(folder, tmpFolder)
             me_folder = folder + "ppt/"
 
             # Export me
@@ -52,7 +52,7 @@ module PowerPointer
                 # Export slide masters
                 export << "<p:sldMasterIdLst>"
                 @slide_masters.each do |slide_master|
-                    slide_master.export_xml(export.get_path, self, @package)
+                    slide_master.export_xml(export.get_path, self, @package, tmpFolder)
 
                     export << "<p:sldMasterId id=\"#{slide_master.unique_id}\" r:id=\"#{slide_master.relationship_id}\" />"
                 end
@@ -61,7 +61,7 @@ module PowerPointer
                 # Export slide list
                 export << "<p:sldIdLst>"
                 @slides.each do |slide|
-                    slide.export_xml(export.get_path, self, @package)
+                    slide.export_xml(export.get_path, self, @package, tmpFolder)
                     export << "<p:sldId id=\"#{slide.unique_id}\" r:id=\"#{slide.relationship_id}\" />"
                 end
                 export << "</p:sldIdLst>"
