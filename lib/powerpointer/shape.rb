@@ -4,7 +4,7 @@ module PowerPointer
         @@next_placeholder_id = 1
         @@placeholders = {}
         def initialize name
-            initialize name, name   
+            initialize name, name
         end
 
         def initialize name, friendly_idx
@@ -23,7 +23,19 @@ module PowerPointer
             @use_size = false
 
             @is_text_box = false
-            @text = ""
+            @paragraphs = []
+            add_paragraph()
+        end
+
+        def add_paragraph
+            @is_text_box = true
+            @current_paragraph = PowerPointer::Paragraph.new
+            @paragraphs << @current_paragraph
+        end
+
+        def get_paragraph
+            @is_text_box = true
+            @current_paragraph
         end
 
         def placeholder
@@ -36,8 +48,6 @@ module PowerPointer
                 @@next_placeholder_id += 1
             end
             @placeholder = pl
-            puts @placeholder
-            puts @@placeholders[pl]
         end
 
         def to_xml type
@@ -73,22 +83,23 @@ module PowerPointer
             if @is_text_box
                 s << "<p:txBody>"
                     s << "<a:bodyPr />"
-                    s << "<a:p>"
-                        s << "<a:r>"
-                            s << "<a:t>#{PowerPointer::escape_tag @text}</a:t>"
-                        s << "</a:r>"
-                    s << "</a:p>"
+                    @paragraphs.each do |para|
+                        s << para.to_xml
+                    end
+#                    s << "<a:p>"
+#                        @text_runs.each do |text|
+#                            s << "<a:r>"
+#                                s << "<a:rPr #{text[:styles]} />"
+#                                s << "<a:t>#{PowerPointer::escape_tag text[:text]}</a:t>"
+#                            s << "</a:r>"
+#                        end
+#                    s << "</a:p>"
                 s << "</p:txBody>"
             end
 
             s << "</p:sp>"
 
             return s
-        end
-
-        def set_text text
-            @is_text_box = true
-            @text = text
         end
 
         attr_accessor :x, :y, :width, :height, :is_text_box, :type, :use_size

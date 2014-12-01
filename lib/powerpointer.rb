@@ -4,6 +4,7 @@ require 'zip'
 
 require 'powerpointer/version'
 require 'powerpointer/globals'
+require 'powerpointer/paragraph'
 require 'powerpointer/shape'
 require 'powerpointer/export_file'
 require 'powerpointer/relationships'
